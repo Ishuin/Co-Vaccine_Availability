@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+    <form id='form' method='POST'> {% csrf_token %}
+        {{form.as_p }}
+        <input type='submit' class='btn btn-primary'/>
+    </form>
+    <script src="{% static "available/reconnecting-websocket.min.js" %}"></script>
+    <script language="javascript">
+        var prefix = (window.location.protocol == 'https:') ? 'wss://' : 'ws://';
+        var ws_url = prefix + window.location.host + '/ws/ticks/';
+        var ticksSocket = new ReconnectingWebSocket(ws_url);
+
+        ticksSocket.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            console.log('data', data);
+            // do whatever required with received data ...
+        };
+    </script>

@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<select name="district" id="district-select">
+    <option value="">---------</option>
+    {% for district in districts %}
+    <option value="{{ district.district_id }}">{{ district.district_name }}</option>
+    {% endfor %}
+</select>

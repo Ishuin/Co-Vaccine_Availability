@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vaccine Availability</title>
+</head>
+<body>
+    <h1>Co-Vaccine Availability</h1>
+    <h3>State</h3>
+    <form id="statesForm" action="{% url 'form_handle' %}" method="POST">
+        {% csrf_token %}
+        {{form.as_table}}
+        <select name="state" id="state-select">
+            <option value="">---------</option>
+            {% for entry in items %}
+                <option value="{{ entry.state_id }}">{{ entry.state_name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <h3>District</h3>
+    <form method="POST" id="districtForm" data-districts-url="{% url 'ajax_load_districts' %}">
+        {% csrf_token %}
+        {{ form.as_ul }}
+    </form>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    $("#state-select").change(function () {
+      var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
+      var stateId = $(this).val();  // get the selected state ID from the HTML input
+      console.log($(this).val());
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
+        data: {
+          'state': stateId       // add the state id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_districts` view function
+          $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
+        }
+      });
+
+    });
+    $("#district-select").change(function () {
+      var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
+      var stateId = $(this).val();  // get the selected state ID from the HTML input
+      console.log($(this).val());
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
+        data: {
+          'state': stateId       // add the state id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_districts` view function
+          $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
+        }
+      });
+
+    });
+  </script>
+</body>
+
+</html>
