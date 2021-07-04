@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, CreateView
 from .forms import LocationForm, DistrictForm
 import requests, json
+from find_availability import AvailableSlots
 
 
 def form_handle(request):
@@ -42,6 +43,12 @@ def load_districts(request):
     elif request.method == "POST":
         print(request.__dict__)
     return render(request, 'available/districts_dropdown_options.html', {})
+
+
+def load_slots(request, *args, **kwargs):
+    district_id = request.POST.get('district')
+    av_slots = AvailableSlots(district_id)
+    av_slots.results()
 
 
 class Availability(CreateView):

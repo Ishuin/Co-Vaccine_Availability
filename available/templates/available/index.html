@@ -28,39 +28,49 @@
     <table id="slotsTable" data-slots-url="{% url 'ajax_load_slots' %}">
     </table>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="{% static "available/reconnecting-websocket.min.js" %}"></script>
+    <script>
     $("#state-select").change(function () {
-      var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
-      var stateId = $(this).val();  // get the selected state ID from the HTML input
-      console.log($(this).val());
-      $.ajax({                       // initialize an AJAX request
-        url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
-        data: {
-          'state': stateId       // add the state id to the GET parameters
-        },
-        success: function (data) {   // `data` is the return of the `load_districts` view function
-          $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
-        }
-      });
-
+        var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
+        var stateId = $(this).val();  // get the selected state ID from the HTML input
+        console.log($(this).val());
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
+            data: {
+                'state': stateId       // add the state id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_districts` view function
+                $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
+            }
+        });
     });
     $("#district-select").change(function () {
-      var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
-      var districtId = $(this).val();  // get the selected state ID from the HTML input
-      console.log($(this).val());
-      $.ajax({                       // initialize an AJAX request
-        url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
-        data: {
-          'district': districtId       // add the state id to the GET parameters
-        },
-        success: function (data) {   // `data` is the return of the `load_districts` view function
-          $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
-        }
-      });
-
+        var url = $("#slotsTable").attr("data-slots-url");  // get the url of the `load_districts` view
+        var districtId = $(this).val();  // get the selected state ID from the HTML input
+        console.log($(this).val());
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
+            data: {
+                'district': districtId       // add the state id to the GET parameters
+            },
+                success: function (data) {   // `data` is the return of the `load_districts` view function
+                    $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
+                }
+        });
     });
-  </script>
+
+    var prefix = (window.location.protocol == 'https:') ? 'wss://' : 'ws://';
+    var ws_url = prefix + window.location.host + '/ws/slots/';
+    var slotsSocket = new ReconnectingWebSocket(ws_url);
+
+    slotsSocket.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+        console.log('data', data);
+        // do whatever required with received data ...
+    };
+
+    </script>
 </body>
 
 </html>

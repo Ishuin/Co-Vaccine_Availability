@@ -4,6 +4,8 @@ import datetime
 import pprint
 import json
 import time
+from scripts.async_functions import get_or_create_event_loop, send_to_room
+
 
 class AvailableSlots:
 
@@ -16,7 +18,7 @@ class AvailableSlots:
         self.district_id = self.district if self.district else 651
         self.today = datetime.datetime.now().date()
         self.dates = ['-'.join(str(self.today + datetime.timedelta(days=i)).split('-')[::-1]) for i in range(1, 8)]
-        print(self.dates)
+        # print(self.dates)
         import os
 
         count = 0
@@ -54,7 +56,8 @@ class AvailableSlots:
                 list_of_dicts = json.loads(r.content.decode())['sessions']
                 # open(file=)
                 for x in list_of_dicts:
-                    if x['min_age_limit'] == 18 and x['available_capacity'] > 0 and x['fee_type']!='Paid':
+                    if x['min_age_limit'] == 45 and x['available_capacity'] > 0:
+                            # and x['fee_type'] != 'Paid':
                         print((
                             date,
                             'fee_type : ' + x['fee_type'],
