@@ -31,7 +31,8 @@ class SlotsSyncConsumer(AsyncConsumer):
             for date in self.dates:
                 list_of_dicts = sync_to_async(self.slot_data)(date)
                 for x in await list_of_dicts:
-                    if x['min_age_limit']==45 and x['available_capacity']>0 and x['fee_type']!='Paid':
+                    if x['min_age_limit'] == 45 and x['available_capacity'] > 0:
+                        # and x['fee_type']!='Paid':
                         await self.send(
                             {
                                 "type": "websocket.send",

@@ -23,6 +23,7 @@
         {% csrf_token %}
         {{ form.as_ul }}
     </form>
+    <div class="result"></div>
 
     <h3>Available Slots</h3>
     <table id="slotsTable" data-slots-url="{% url 'ajax_load_slots' %}">
@@ -31,44 +32,41 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="{% static "available/reconnecting-websocket.min.js" %}"></script>
     <script>
-    $("#state-select").change(function () {
-        var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
-        var stateId = $(this).val();  // get the selected state ID from the HTML input
-        console.log($(this).val());
-        $.ajax({                       // initialize an AJAX request
-            url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
-            data: {
-                'state': stateId       // add the state id to the GET parameters
-            },
-            success: function (data) {   // `data` is the return of the `load_districts` view function
-                $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
-            }
-        });
-    });
-    $("#district-select").change(function () {
-        var url = $("#slotsTable").attr("data-slots-url");  // get the url of the `load_districts` view
-        var districtId = $(this).val();  // get the selected state ID from the HTML input
-        console.log($(this).val());
-        $.ajax({                       // initialize an AJAX request
-            url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
-            data: {
-                'district': districtId       // add the state id to the GET parameters
-            },
+        $("#state-select").change(function () {
+            var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
+            var stateId = $(this).val();  // get the selected state ID from the HTML input
+            console.log($(this).val());
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
+                data: {
+                    'state': stateId       // add the state id to the GET parameters
+                },
                 success: function (data) {   // `data` is the return of the `load_districts` view function
                     $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
                 }
+            });
         });
-    });
 
-    var prefix = (window.location.protocol == 'https:') ? 'wss://' : 'ws://';
-    var ws_url = prefix + window.location.host + '/ws/slots/';
-    var slotsSocket = new ReconnectingWebSocket(ws_url);
 
-    slotsSocket.onmessage = function(event) {
-        var data = JSON.parse(event.data);
-        console.log('data', data);
-        // do whatever required with received data ...
-    };
+        var prefix = (window.location.protocol == 'https:') ? 'wss://' : 'ws://';
+        var ws_url = prefix + window.location.host + '/ws/slots/';
+        var slotsSocket = new ReconnectingWebSocket(ws_url);
+
+        $("#districtForm").change(function () {
+            console.log("Captured change!!!");
+            var url = $("#slotsTable").attr("data-slots-url");  // get the url of the `load_districts` view
+            var districtId = $("#district-select").val();  // get the selected state ID from the HTML input
+            console.log(districtId);
+            slotsSocket.refresh();
+            slotsSocket.onopen = () => slotsSocket.send(districtId);
+        });
+
+        slotsSocket.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            console.log('data', data);
+            document.getElementById("slotsTable").value = data;
+            // do whatever required with received data ...
+        };
 
     </script>
 </body>

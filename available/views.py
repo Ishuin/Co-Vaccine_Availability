@@ -47,8 +47,7 @@ def load_districts(request):
 
 def load_slots(request, *args, **kwargs):
     district_id = request.POST.get('district')
-    av_slots = AvailableSlots(district_id)
-    av_slots.results()
+    return render(request, 'available/districts_dropdown_options.html', {})
 
 
 class Availability(CreateView):
