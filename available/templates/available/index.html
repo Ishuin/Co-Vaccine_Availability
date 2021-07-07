@@ -64,8 +64,14 @@
         slotsSocket.onmessage = function(event) {
             var data = JSON.parse(event.data);
             console.log('data', data);
-            document.getElementById("slotsTable").value = data;
-            // do whatever required with received data ...
+            var dataNode = document.getElementById('slotsTable');
+            if(data["message"] === 'empty')
+                dataNode.innerHTML="";
+            else
+                for(var x in data){
+                        dataNode.innerHTML+=x+' : '+data[x]+' :: ';
+                    }
+                // do whatever required with received data ...
         };
 
     </script>
