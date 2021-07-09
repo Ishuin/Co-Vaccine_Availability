@@ -6,8 +6,6 @@ from asgiref.sync import sync_to_async
 from channels.consumer import AsyncConsumer
 from channels.exceptions import StopConsumer
 
-VACCINE_AVAILABILITY_GROUP = "available_slots"
-
 
 # breakpoint()
 

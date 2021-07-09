@@ -34,6 +34,7 @@ jupyter-core==4.7.1
 kombu==3.0.37
 matplotlib-inline==0.1.2
 msgpack==1.0.2
+nest-asyncio==1.5.1
 parso==0.8.2
 pickleshare==0.7.5
 prompt-toolkit==3.0.18
@@ -58,4 +59,3 @@ txaio==21.2.1
 urllib3==1.26.4
 wcwidth==0.2.5
 zope.interface==5.4.0
-
