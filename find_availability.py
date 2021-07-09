@@ -4,7 +4,6 @@ import datetime
 import pprint
 import json
 import time
-from scripts.async_functions import get_or_create_event_loop, send_to_room
 
 
 class AvailableSlots:

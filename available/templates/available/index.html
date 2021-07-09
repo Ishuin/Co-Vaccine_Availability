@@ -65,13 +65,26 @@
             var data = JSON.parse(event.data);
             console.log('data', data);
             var dataNode = document.getElementById('slotsTable');
-            if(data["message"] === 'empty')
-                dataNode.innerHTML="";
+            var existing_table = document.getElementById(data['date']);
+            if (existing_table === null)
+            {
+                var tbl = document.createElement("div");
+                tbl.setAttribute("border", "2");
+                tbl.setAttribute("id", data['date']);
+                dataNode.appendChild(tbl);
+            }
             else
-                for(var x in data){
-                        dataNode.innerHTML+=x+' : '+data[x]+' :: ';
-                    }
-                // do whatever required with received data ...
+                var tbl = existing_table;
+            length_of = Object.keys(data).length;
+            if (length_of===1)
+               tbl.innerHTML = '........................................<br>Date : '+data['date']+'<br>';
+            else
+                //for(var x in data){
+                //    tbl.innerHTML+=x+' : '+data[x]+' ::: ';
+                //}
+                tbl.innerHTML+='Name : '+ data['name'] +' -- Address : '+ data['address'] +' -- Block Name : '+ data['block_name'] +' -- PinCode : '+ data['pincode'] +' -- Dose 1 : '+ data['available_capacity_dose1'] +' -- Dose 2 : '+ data['available_capacity_dose2'] +' -- Min age limit : '+ data['min_age_limit'] +' -- Vaccine : '+ data['vaccine'] +' -- Fee Type : '+ data['fee_type'];
+            tbl.innerHTML+='<br>';
+            console.log(tbl);
         };
 
     </script>

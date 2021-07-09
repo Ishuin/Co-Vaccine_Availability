@@ -28,15 +28,17 @@ class SlotsSyncConsumer(AsyncConsumer):
         self.dates = ['-'.join(str(self.today + datetime.timedelta(days=i)).split('-')[::-1]) for i in range(1, 8)]
         self.district_id = event.get('text', None)
         while True:
-            await self.send(
-                {
-                    "type": "websocket.send",
-                    "text": json.dumps({"message":"empty"})
-                }
-            )
             for date in self.dates:
+                time.sleep(3)
                 list_of_dicts = sync_to_async(self.slot_data)(date)
-                for x in await list_of_dicts:
+                dicts = await list_of_dicts
+                await self.send(
+                    {
+                        "type": "websocket.send",
+                        "text": json.dumps({"date":date})
+                    }
+                )
+                for x in dicts:
                     if x['min_age_limit'] == 45 and x['available_capacity'] > 0:
                         # and x['fee_type']!='Paid':
                         await self.send(
@@ -45,7 +47,6 @@ class SlotsSyncConsumer(AsyncConsumer):
                                 "text": json.dumps(x)
                             }
                         )
-                time.sleep(3)
 
 
     async def websocket_disconnect(self, event):
