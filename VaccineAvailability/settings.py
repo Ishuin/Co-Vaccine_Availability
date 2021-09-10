@@ -25,7 +25,7 @@ SECRET_KEY = SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ishuks.pythonanywhere.com','ishuks.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', 'ishuks.pythonanywhere.com', 'ishuks.herokuapp.com']
 
 
 # Application definition

@@ -1,0 +1,1 @@
+web: gunicorn VaccineAvailability.wsgi --log-file -
