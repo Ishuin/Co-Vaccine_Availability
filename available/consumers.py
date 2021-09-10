@@ -20,7 +20,7 @@ class SlotsSyncConsumer(AsyncConsumer):
 
     async def websocket_receive(self, event):
         print("receive")
-        scope_headers = {x[0].decode("utf-8"):x[1].decode("utf-8") for x in self.scope['headers']}
+        scope_headers = {x[0].decode("utf-8"): x[1].decode("utf-8") for x in self.scope['headers']}
         today = datetime.datetime.now().date()
         dates = ['-'.join(str(today + datetime.timedelta(days=i)).split('-')[::-1]) for i in range(1, 8)]
         district_id = event.get('text', None)
@@ -32,12 +32,13 @@ class SlotsSyncConsumer(AsyncConsumer):
                 await self.send(
                     {
                         "type": "websocket.send",
-                        "text": json.dumps({"date":date})
+                        "text": json.dumps({"date": date})
                     }
                 )
                 for x in dicts:
-                    if x['min_age_limit'] == 45 and x['available_capacity'] > 0:
-                        # and x['fee_type']!='Paid':
+                    if x['available_capacity'] > 0:
+                    # if x['available_capacity'] > 0 and x['fee_type'] != 'Paid':
+                    # if x['min_age_limit'] == 18 and x['available_capacity_dose2'] > 0 and x['fee_type'] != 'Paid' and x['vaccine'] == "COVISHIELD":
                         await self.send(
                             {
                                 "type": "websocket.send",
@@ -61,7 +62,7 @@ class SlotsSyncConsumer(AsyncConsumer):
         url = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict"
         headers = {
             "accept": 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,'
-            + 'image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                      + 'image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             "accept-language": scope_headers['accept-language'],
             "user-agent": scope_headers['user-agent'],
         }
