@@ -1,93 +1,113 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Vaccine Availability</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Co-Vaccine Availability</h1>
     <h3>State</h3>
     <form id="statesForm" action="{% url 'form_handle' %}" method="POST">
-        {% csrf_token %}
-        {{form.as_table}}
-        <select name="state" id="state-select">
-            <option value="">---------</option>
-            {% for entry in items %}
-                <option value="{{ entry.state_id }}">{{ entry.state_name }}</option>
-            {% endfor %}
-        </select>
+      {% csrf_token %} {{form.as_table}}
+      <select name="state" id="state-select">
+        <option value="">---------</option>
+        {% for entry in items %}
+        <option value="{{ entry.state_id }}">{{ entry.state_name }}</option>
+        {% endfor %}
+      </select>
     </form>
     <h3>District</h3>
-    <form method="POST" id="districtForm" data-districts-url="{% url 'ajax_load_districts' %}">
-        {% csrf_token %}
-        {{ form.as_ul }}
+    <form
+      method="POST"
+      id="districtForm"
+      data-districts-url="{% url 'ajax_load_districts' %}"
+    >
+      {% csrf_token %} {{ form.as_ul }}
     </form>
     <div class="result"></div>
 
     <h3>Available Slots</h3>
-    <table id="slotsTable" data-slots-url="{% url 'ajax_load_slots' %}">
-    </table>
+    <table id="slotsTable" data-slots-url="{% url 'ajax_load_slots' %}"></table>
 
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="{% static "available/reconnecting-websocket.min.js" %}"></script>
+    <script src="{% static 'available/reconnecting-websocket.min.js' %}"></script>
     <script>
-        $("#state-select").change(function () {
-            var url = $("#districtForm").attr("data-districts-url");  // get the url of the `load_districts` view
-            var stateId = $(this).val();  // get the selected state ID from the HTML input
-            console.log($(this).val());
-            $.ajax({                       // initialize an AJAX request
-                url: url,                    // set the url of the request (= localhost:8000/ajax/load-districts/)
-                data: {
-                    'state': stateId       // add the state id to the GET parameters
-                },
-                success: function (data) {   // `data` is the return of the `load_districts` view function
-                    $("#districtForm").html(data);  // replace the contents of the district input with the data that came from the server
-                }
-            });
+      $("#state-select").change(function () {
+        var url = $("#districtForm").attr("data-districts-url"); // get the url of the `load_districts` view
+        var stateId = $(this).val(); // get the selected state ID from the HTML input
+        console.log($(this).val());
+        $.ajax({
+          // initialize an AJAX request
+          url: url, // set the url of the request (= localhost:8000/ajax/load-districts/)
+          data: {
+            state: stateId, // add the state id to the GET parameters
+          },
+          success: function (data) {
+            // `data` is the return of the `load_districts` view function
+            $("#districtForm").html(data); // replace the contents of the district input with the data that came from the server
+          },
         });
+      });
 
+      var prefix = window.location.protocol == "https:" ? "wss://" : "ws://";
+      var ws_url = prefix + window.location.host + "/ws/slots/";
+      console.log(ws_url);
+      var slotsSocket = new ReconnectingWebSocket(ws_url);
 
-        var prefix = (window.location.protocol == 'https:') ? 'wss://' : 'ws://';
-        var ws_url = prefix + window.location.host + '/ws/slots/';
-        var slotsSocket = new ReconnectingWebSocket(ws_url);
+      $("#districtForm").change(function () {
+        console.log("Captured change!!!");
+        var url = $("#slotsTable").attr("data-slots-url"); // get the url of the `load_districts` view
+        var districtId = $("#district-select").val(); // get the selected state ID from the HTML input
+        console.log(districtId);
+        slotsSocket.refresh();
+        slotsSocket.onopen = () => slotsSocket.send(districtId);
+      });
 
-        $("#districtForm").change(function () {
-            console.log("Captured change!!!");
-            var url = $("#slotsTable").attr("data-slots-url");  // get the url of the `load_districts` view
-            var districtId = $("#district-select").val();  // get the selected state ID from the HTML input
-            console.log(districtId);
-            slotsSocket.refresh();
-            slotsSocket.onopen = () => slotsSocket.send(districtId);
-        });
-
-        slotsSocket.onmessage = function(event) {
-            var data = JSON.parse(event.data);
-            console.log('data', data);
-            var dataNode = document.getElementById('slotsTable');
-            var existing_table = document.getElementById(data['date']);
-            if (existing_table === null)
-            {
-                var tbl = document.createElement("div");
-                tbl.setAttribute("border", "2");
-                tbl.setAttribute("id", data['date']);
-                dataNode.appendChild(tbl);
-            }
-            else
-                var tbl = existing_table;
-            length_of = Object.keys(data).length;
-            if (length_of===1)
-               tbl.innerHTML = '........................................<br>Date : '+data['date']+'<br>';
-            else
-                //for(var x in data){
-                //    tbl.innerHTML+=x+' : '+data[x]+' ::: ';
-                //}
-                tbl.innerHTML+='Name : '+ data['name'] +' -- Address : '+ data['address'] +' -- Block Name : '+ data['block_name'] +' -- PinCode : '+ data['pincode'] +' -- Dose 1 : '+ data['available_capacity_dose1'] +' -- Dose 2 : '+ data['available_capacity_dose2'] +' -- Min age limit : '+ data['min_age_limit'] +' -- Vaccine : '+ data['vaccine'] +' -- Fee Type : '+ data['fee_type'];
-            tbl.innerHTML+='<br>';
-            console.log(tbl);
-        };
-
+      slotsSocket.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+        console.log("data", data);
+        var dataNode = document.getElementById("slotsTable");
+        var existing_table = document.getElementById(data["date"]);
+        if (existing_table === null) {
+          var tbl = document.createElement("div");
+          tbl.setAttribute("border", "2");
+          tbl.setAttribute("id", data["date"]);
+          dataNode.appendChild(tbl);
+        } else var tbl = existing_table;
+        length_of = Object.keys(data).length;
+        if (length_of === 1)
+          tbl.innerHTML =
+            "........................................<br>Date : " +
+            data["date"] +
+            "<br>";
+        //for(var x in data){
+        //    tbl.innerHTML+=x+' : '+data[x]+' ::: ';
+        //}
+        else
+          tbl.innerHTML +=
+            "Name : " +
+            data["name"] +
+            " -- Address : " +
+            data["address"] +
+            " -- Block Name : " +
+            data["block_name"] +
+            " -- PinCode : " +
+            data["pincode"] +
+            " -- Dose 1 : " +
+            data["available_capacity_dose1"] +
+            " -- Dose 2 : " +
+            data["available_capacity_dose2"] +
+            " -- Min age limit : " +
+            data["min_age_limit"] +
+            " -- Vaccine : " +
+            data["vaccine"] +
+            " -- Fee Type : " +
+            data["fee_type"];
+        tbl.innerHTML += "<br>";
+        console.log(tbl);
+      };
     </script>
-</body>
-
+  </body>
 </html>
