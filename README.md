@@ -4,16 +4,17 @@
 
 #### setup packages
 
-pip install poetry
-poetry install
+- pip install poetry
+- poetry install
 
 (to install any additional package)
-poetry add <package-name>
 
-git config --local blame.ignoreRevsFile .git-blame-ignore-revs
-pre-commit autoupdate
-pre-commit install
-pre-commit install --hook-type commit-msg
+- poetry add <package-name>
+
+- git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+- pre-commit autoupdate
+- pre-commit install
+- pre-commit install --hook-type commit-msg
 
 #### Steps for execution:
 
